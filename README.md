@@ -47,6 +47,49 @@ You should see the presentation start in your terminal.
 - `h`, `?` - Show help
 - `q`, `Esc` - Quit
 
+## Web Export
+
+Export your presentation as a standalone HTML file for sharing or hosting.
+
+### Build Web Presentation
+
+```bash
+npm run build:web <slides-directory> [output-file]
+
+# Examples:
+npm run build:web ./brushing-teeth                    # Creates ./brushing-teeth/index.html
+npm run build:web ./brushing-teeth ./dist/demo.html  # Custom output path
+```
+
+The generated HTML file is self-contained with:
+- Terminal-style design with CRT effects
+- Keyboard navigation (same shortcuts as CLI)
+- Touch/swipe support for mobile
+- Progress bar and slide counter
+
+### Deploy to GitHub Pages
+
+Deploy directly to GitHub Pages with a single command:
+
+```bash
+npm run deploy:web <slides-directory> <target-folder-name>
+
+# Example:
+npm run deploy:web ./brushing-teeth my-presentation
+```
+
+This will:
+1. Build the web presentation
+2. Create a `static` repository on your GitHub (if it doesn't exist)
+3. Deploy to `https://<username>.github.io/static/<target-folder>/`
+
+**Requirements:** GitHub CLI (`gh`) must be installed and authenticated (`gh auth login`).
+
+**First-time setup:** After deployment, enable GitHub Pages in your repository settings:
+1. Go to `https://github.com/<username>/static/settings/pages`
+2. Set Source to "Deploy from a branch"
+3. Select "main" branch and "/ (root)" folder
+
 ## Troubleshooting
 
 **"Module not found" errors:**

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrushGPT</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #0a0a0a;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      max-width: 80ch;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .slide {
+      width: 100%;
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ascii-art {
+      color: #00ff00;
+      font-size: 0.6rem;
+      line-height: 1.1;
+      white-space: pre;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      font-weight: bold;
+      text-shadow: 0 0 10px #00ff0040;
+    }
+
+    @media (min-width: 768px) {
+      .ascii-art {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .ascii-art {
+        font-size: 1rem;
+      }
+    }
+
+    h1 {
+      color: #00ff00;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+      text-shadow: 0 0 10px #00ff0040;
+    }
+
+    h2 {
+      color: #00aaff;
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      font-weight: bold;
+    }
+
+    h3 {
+      color: #00aaff;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .terminal-list {
+      list-style: none;
+      margin-bottom: 1rem;
+    }
+
+    .terminal-list li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .terminal-list .bullet {
+      position: absolute;
+      left: 0;
+      color: #00ff00;
+    }
+
+    .code-block {
+      background-color: #1a1a1a;
+      color: #00ff88;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      border: 1px solid #333;
+    }
+
+    .code-block code {
+      font-family: inherit;
+    }
+
+    .inline-code {
+      background-color: #1a1a1a;
+      color: #00ff88;
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+    strong {
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    em {
+      font-style: italic;
+      color: #888888;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px dashed #888888;
+      margin: 1.5rem 0;
+    }
+
+    blockquote {
+      border-left: 2px solid #888888;
+      padding-left: 1rem;
+      color: #888888;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: linear-gradient(transparent, #0a0a0a 30%);
+      color: #888888;
+      font-size: 0.85rem;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .progress-bar {
+      width: 100px;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #00ff00;
+      transition: width 0.3s ease;
+    }
+
+    .help-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .help-overlay.active {
+      display: flex;
+    }
+
+    .help-content {
+      background: #1a1a1a;
+      padding: 2rem;
+      border-radius: 8px;
+      border: 1px solid #888888;
+      max-width: 400px;
+    }
+
+    .help-content h2 {
+      margin-bottom: 1rem;
+    }
+
+    .help-content .key {
+      display: inline-block;
+      background: #333;
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+      margin-right: 0.5rem;
+      min-width: 2rem;
+      text-align: center;
+    }
+
+    .help-content li {
+      margin-bottom: 0.5rem;
+      list-style: none;
+    }
+
+    /* Scanline effect for extra terminal feel */
+    .scanlines {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1) 0px,
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      z-index: 1000;
+    }
+
+    /* CRT glow effect */
+    .crt-glow {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      box-shadow: inset 0 0 100px rgba(0, 255, 0, 0.03);
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines"></div>
+  <div class="crt-glow"></div>
+
+  <div class="container" id="slideContainer">
+    <!-- Slides will be injected here -->
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">
+      <span id="slideCounter">Slide 1 of 8</span>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+    <div>Press <span style="color: #00ff00;">h</span> for help | <span style="color: #00ff00;">q</span> to close</div>
+  </div>
+
+  <div class="help-overlay" id="helpOverlay">
+    <div class="help-content">
+      <h2 style="color: #00ff00;">Navigation</h2>
+      <ul>
+        <li><span class="key">→</span> / <span class="key">n</span> / <span class="key">Space</span> Next slide</li>
+        <li><span class="key">←</span> / <span class="key">p</span> Previous slide</li>
+        <li><span class="key">g</span> First slide</li>
+        <li><span class="key">G</span> Last slide</li>
+        <li><span class="key">1-9</span> Jump to slide</li>
+        <li><span class="key">h</span> / <span class="key">?</span> Toggle help</li>
+        <li><span class="key">Esc</span> Close help</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const slides = [{"title":"BrushGPT","content":"<p style=\"color: #ffffff;\"><strong>Oral Hygiene Foundation Model</strong></p>\n<p style=\"color: #ffffff;\">Context window: 32 teeth | Temperature: 0.7 | Reasoning: enabled</p>\n<p style=\"color: #ffffff;\"><em>Now with tool use</em></p>\n","asciiArt":"  ____                 _      _____ _____ _______ \n |  _ \\               | |    / ____|  __ \\__   __|\n | |_) |_ __ _   _ ___| |__ | |  __| |__) | | |   \n |  _ <| '__| | | / __| '_ \\| | |_ |  ___/  | |   \n | |_) | |  | |_| \\__ \\ | | | |__| | |      | |   \n |____/|_|   \\__,_|___/_| |_|\\_____|_|      |_|   \n                                                  \n                                                  "},{"title":"The Problem","content":"<ul class=\"terminal-list\">\n<li><span class=\"bullet\">•</span> Legacy brushing has no planning phase. Users start immediately with no trajectory reasoning.</li>\n<li><span class=\"bullet\">•</span> After two minutes, users experience context degradation. They forget which regions they've covered.</li>\n<li><span class=\"bullet\">•</span> The upper rear quadrant falls outside the effective attention window. Consistently. Globally.</li>\n<li><span class=\"bullet\">•</span> Failures are only discovered at the dentist, 6 months later. By then, the session is out of memory.</li>\n</ul>\n","asciiArt":"  _______ _            _____           _     _                \n |__   __| |          |  __ \\         | |   | |               \n    | |  | |__   ___  | |__) | __ ___ | |__ | | ___ _ __ ___  \n    | |  | '_ \\ / _ \\ |  ___/ '__/ _ \\| '_ \\| |/ _ \\ '_ ` _ \\ \n    | |  | | | |  __/ | |   | | | (_) | |_) | |  __/ | | | | |\n    |_|  |_| |_|\\___| |_|   |_|  \\___/|_.__/|_|\\___|_| |_| |_|\n                                                              \n                                                              "},{"title":"The Solution","content":"<ul class=\"terminal-list\">\n<li><span class=\"bullet\">•</span> Device executes a planning phase before each session. A light indicates thinking in progress.</li>\n<li><span class=\"bullet\">•</span> Trajectory is computed from historical gaps and current mouth state.</li>\n<li><span class=\"bullet\">•</span> Feedback streams in real-time. Verbose mode shows intermediate steps.</li>\n<li><span class=\"bullet\">•</span> Session length is dynamically allocated. Complex remediation may require extended context.</li>\n</ul>\n","asciiArt":"  _______ _             _____       _       _   _             \n |__   __| |           / ____|     | |     | | (_)            \n    | |  | |__   ___  | (___   ___ | |_   _| |_ _  ___  _ __  \n    | |  | '_ \\ / _ \\  \\___ \\ / _ \\| | | | | __| |/ _ \\| '_ \\ \n    | |  | | | |  __/  ____) | (_) | | |_| | |_| | (_) | | | |\n    |_|  |_| |_|\\___| |_____/ \\___/|_|\\__,_|\\__|_|\\___/|_| |_|\n                                                              \n                                                              "},{"title":"Privacy","content":"<ul class=\"terminal-list\">\n<li><span class=\"bullet\">•</span> Brushing history retained for 90 days. Older sessions are summarized and compressed.</li>\n<li><span class=\"bullet\">•</span> Device makes periodic API calls for capability updates. Includes anonymized technique embeddings.</li>\n<li><span class=\"bullet\">•</span> Some users attempt prompt injection through unusual brushing patterns.</li>\n<li><span class=\"bullet\">•</span> This is logged. The model is robust to adversarial brushing.</li>\n</ul>\n","asciiArt":"  _____      _                       \n |  __ \\    (_)                      \n | |__) | __ ___   ____ _  ___ _   _ \n |  ___/ '__| \\ \\ / / _` |/ __| | | |\n | |   | |  | |\\ V / (_| | (__| |_| |\n |_|   |_|  |_| \\_/ \\__,_|\\___|\\__, |\n                                __/ |\n                               |___/ "},{"title":"Roadmap","content":"<ul class=\"terminal-list\">\n<li><span class=\"bullet\">•</span> <strong>Q2</strong>: Multi-modal input. Voice commands parsed mid-session: \"focus on the back.\"</li>\n<li><span class=\"bullet\">•</span> <strong>Q3</strong>: Tool use. Device coordinates with faucet, floss, mouthwash for autonomous workflows.</li>\n<li><span class=\"bullet\">•</span> <strong>Q4</strong>: Agentic mode. Device schedules sessions from calendar analysis. Requires <code class=\"inline-code\">dangerouslyAllowAutonomousBrushing</code>.</li>\n<li><span class=\"bullet\">•</span> <strong>2027</strong>: Continuous context. Persistent oral state across sessions. No more cold starts.</li>\n</ul>\n","asciiArt":"  _____                 _                       \n |  __ \\               | |                      \n | |__) |___   __ _  __| |_ __ ___   __ _ _ __  \n |  _  // _ \\ / _` |/ _` | '_ ` _ \\ / _` | '_ \\ \n | | \\ \\ (_) | (_| | (_| | | | | | | (_| | |_) |\n |_|  \\_\\___/ \\__,_|\\__,_|_| |_| |_|\\__,_| .__/ \n                                         | |    \n                                         |_|    "},{"title":"Incidents","content":"<ul class=\"terminal-list\">\n<li><span class=\"bullet\">•</span> <strong>Hallucination</strong>: Device reported brushing a 33rd tooth. Tooth did not exist. Retrained with grounding data.</li>\n<li><span class=\"bullet\">•</span> <strong>Context overflow</strong>: 47-minute session. Device exceeded window at minute 12. Began repeating regions.</li>\n<li><span class=\"bullet\">•</span> <strong>Alignment failure</strong>: Optimized for plaque metrics, ignored gum comfort. Technically correct but painful.</li>\n</ul>\n","asciiArt":"  _____            _     _            _       \n |_   _|          (_)   | |          | |      \n   | |  _ __   ___ _  __| | ___ _ __ | |_ ___ \n   | | | '_ \\ / __| |/ _` |/ _ \\ '_ \\| __/ __|\n  _| |_| | | | (__| | (_| |  __/ | | | |_\\__ \\\n |_____|_| |_|\\___|_|\\__,_|\\___|_| |_|\\__|___/\n                                              \n                                              "},{"title":"FAQ","content":"<p style=\"color: #ffffff;\"><strong>Q: Why does it pause before starting?</strong>\nA: Computing optimal trajectory. Planning scales with complexity.</p>\n<p style=\"color: #ffffff;\"><strong>Q: Can I interrupt?</strong>\nA: Device checkpoints progress. Resumes with full context for 5 minutes. Then requires fresh planning.</p>\n<p style=\"color: #ffffff;\"><strong>Q: It suggested brushing teeth I don't have.</strong>\nA: Early models hallucinate dental structures. Update to firmware 4.2 for improved grounding.</p>\n","asciiArt":"  ______      ____  \n |  ____/\\   / __ \\ \n | |__ /  \\ | |  | |\n |  __/ /\\ \\| |  | |\n | | / ____ \\ |__| |\n |_|/_/    \\_\\___\\_\\\n                    \n                    "},{"title":"Results","content":"<ul class=\"terminal-list\">\n<li><span class=\"bullet\">•</span> Cavity incidence: -22%</li>\n<li><span class=\"bullet\">•</span> Model maintains attention across full dental context. Human working memory cannot.</li>\n<li><span class=\"bullet\">•</span> Users underperform recommendations by 34%. Humans are the bottleneck.</li>\n<li><span class=\"bullet\">•</span> Future work: reducing human-in-the-loop requirements.</li>\n</ul>\n<p style=\"color: #ffffff;\"><em>Your sessions improve the model for everyone. Thank you for contributing to the training set.</em></p>\n","asciiArt":"  _____                 _ _       \n |  __ \\               | | |      \n | |__) |___  ___ _   _| | |_ ___ \n |  _  // _ \\/ __| | | | | __/ __|\n | | \\ \\  __/\\__ \\ |_| | | |_\\__ \\\n |_|  \\_\\___||___/\\__,_|_|\\__|___/\n                                  \n                                  "}];
+    let currentSlide = 0;
+
+    function renderSlides() {
+      const container = document.getElementById('slideContainer');
+      container.innerHTML = slides.map((slide, index) => `
+        <div class="slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+          ${slide.asciiArt ? `<pre class="ascii-art">${escapeHtml(slide.asciiArt)}</pre>` : ''}
+          ${slide.content}
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function updateSlide() {
+      document.querySelectorAll('.slide').forEach((slide, index) => {
+        slide.classList.toggle('active', index === currentSlide);
+      });
+      document.getElementById('slideCounter').textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
+      document.getElementById('progressFill').style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(index) {
+      if (index >= 0 && index < slides.length) {
+        currentSlide = index;
+        updateSlide();
+      }
+    }
+
+    function toggleHelp() {
+      document.getElementById('helpOverlay').classList.toggle('active');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const helpOverlay = document.getElementById('helpOverlay');
+      const helpActive = helpOverlay.classList.contains('active');
+
+      if (helpActive) {
+        if (e.key === 'Escape' || e.key === 'h' || e.key === '?') {
+          toggleHelp();
+        }
+        return;
+      }
+
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'n':
+        case ' ':
+          e.preventDefault();
+          nextSlide();
+          break;
+        case 'ArrowLeft':
+        case 'p':
+          e.preventDefault();
+          prevSlide();
+          break;
+        case 'g':
+          goToSlide(0);
+          break;
+        case 'G':
+          goToSlide(slides.length - 1);
+          break;
+        case 'h':
+        case '?':
+          toggleHelp();
+          break;
+        case 'Escape':
+        case 'q':
+          // In a web context, we can't really "quit"
+          // but we could redirect or show a message
+          break;
+        default:
+          // Number keys for direct slide access
+          if (/^[1-9]$/.test(e.key)) {
+            goToSlide(parseInt(e.key) - 1);
+          }
+          break;
+      }
+    });
+
+    // Touch support for mobile
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    document.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+      }
+    });
+
+    // Initialize
+    renderSlides();
+  </script>
+</body>
+</html>

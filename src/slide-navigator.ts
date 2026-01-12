@@ -110,7 +110,7 @@ export class SlideNavigator {
       totalSlides: this.slides.length
     });
 
-    if (this.currentIndex <= this.slides.length - 1) {
+    if (this.currentIndex < this.slides.length - 1) {
       this.currentIndex++;
       this.addToHistory(this.currentIndex);
       return true;
@@ -204,7 +204,7 @@ export class SlideNavigator {
    * Get navigation history
    */
   getHistory(): number[] {
-    return this.history;
+    return [...this.history];
   }
 
   /**

@@ -107,6 +107,103 @@ These are notes
     fs.rmSync(emptyDir, { recursive: true });
   });
 
-  // NOTE: Not testing edge cases at slide boundaries
-  // NOTE: Not testing array reference behavior
+  test('should not navigate past last slide', async () => {
+    await navigator.loadSlides();
+
+    // Go to last slide
+    navigator.lastSlide();
+    expect(navigator.getCurrentIndex()).toBe(2);
+
+    // Try to go past last slide - should fail
+    const moved = navigator.nextSlide();
+    expect(moved).toBe(false);
+    expect(navigator.getCurrentIndex()).toBe(2); // Still at last slide
+  });
+
+  test('should not navigate before first slide', async () => {
+    await navigator.loadSlides();
+
+    // At first slide (index 0)
+    expect(navigator.getCurrentIndex()).toBe(0);
+
+    // Try to go before first slide - should fail
+    const moved = navigator.prevSlide();
+    expect(moved).toBe(false);
+    expect(navigator.getCurrentIndex()).toBe(0); // Still at first slide
+  });
+
+  test('should handle rapid nextSlide calls at boundary', async () => {
+    await navigator.loadSlides();
+
+    // Go to last slide
+    navigator.lastSlide();
+
+    // Simulate rapid key presses at boundary
+    for (let i = 0; i < 10; i++) {
+      navigator.nextSlide();
+    }
+
+    // Should still be at last valid index
+    expect(navigator.getCurrentIndex()).toBe(2);
+    expect(navigator.getCurrentSlide()).toBeDefined();
+    expect(navigator.getCurrentSlide().content).toContain('Third Slide');
+  });
+
+  test('should handle rapid prevSlide calls at boundary', async () => {
+    await navigator.loadSlides();
+
+    // At first slide
+    expect(navigator.getCurrentIndex()).toBe(0);
+
+    // Simulate rapid key presses at boundary
+    for (let i = 0; i < 10; i++) {
+      navigator.prevSlide();
+    }
+
+    // Should still be at first valid index
+    expect(navigator.getCurrentIndex()).toBe(0);
+    expect(navigator.getCurrentSlide()).toBeDefined();
+    expect(navigator.getCurrentSlide().content).toContain('First Slide');
+  });
+
+  test('getHistory should return a copy, not the original array', async () => {
+    await navigator.loadSlides();
+
+    // Navigate to build history
+    navigator.nextSlide();
+    navigator.nextSlide();
+
+    const history1 = navigator.getHistory();
+    expect(history1).toEqual([0, 1, 2]);
+
+    // Mutate the returned array
+    history1.shift();
+    history1.push(99);
+
+    // Original history should be unchanged
+    const history2 = navigator.getHistory();
+    expect(history2).toEqual([0, 1, 2]);
+  });
+
+  test('undo should work repeatedly without corruption', async () => {
+    await navigator.loadSlides();
+
+    // Navigate: 0 -> 1 -> 2
+    navigator.nextSlide();
+    navigator.nextSlide();
+    expect(navigator.getCurrentIndex()).toBe(2);
+
+    // Simulate what presenter does: get history multiple times
+    for (let i = 0; i < 5; i++) {
+      const h = navigator.getHistory();
+      h.shift(); // This used to corrupt the real history
+    }
+
+    // Undo should still work
+    expect(navigator.undoNavigation()).toBe(true);
+    expect(navigator.getCurrentIndex()).toBe(1);
+
+    expect(navigator.undoNavigation()).toBe(true);
+    expect(navigator.getCurrentIndex()).toBe(0);
+  });
 });

@@ -27,6 +27,7 @@ export class Presenter {
   private inputHandler: InputHandler;
   private fileWatcher: FileWatcher | null = null;
   private isRunning: boolean = false;
+  private renderVersion: number = 0;
 
   constructor(private config: PresenterConfig) {
     this.navigator = new SlideNavigator(config.slidesDir);
@@ -428,6 +429,9 @@ export class Presenter {
    * Render current slide
    */
   async render(): Promise<void> {
+    // Increment version to invalidate any in-flight renders
+    const currentVersion = ++this.renderVersion;
+
     try {
       const slide = this.navigator.getCurrentSlide();
 
@@ -443,13 +447,24 @@ export class Presenter {
 
       logger.debug('Rendering slide', {
         slideId: slide.id,
-        slideNumber
+        slideNumber,
+        renderVersion: currentVersion
       });
 
-    clearScreen();
-
-    // Render slide content
+    // Render slide content (this is async and can take time)
     const rendered = await this.renderer.renderSlide(slide.content, slide.id);
+
+    // Check if a newer render was requested while we were rendering
+    if (currentVersion !== this.renderVersion) {
+      logger.debug('Skipping stale render', {
+        slideId: slide.id,
+        renderVersion: currentVersion,
+        currentVersion: this.renderVersion
+      });
+      return;
+    }
+
+    clearScreen();
 
     // Calculate layout
     const termSize = getTerminalSize();
@@ -497,6 +512,13 @@ export class Presenter {
     const current = this.navigator.getCurrentIndex() + 1;
     const total = this.navigator.getTotalSlides();
     return `Slide ${current} of ${total}`;
+  }
+
+  /**
+   * Get current render version (for testing)
+   */
+  getRenderVersion(): number {
+    return this.renderVersion;
   }
 
   /**
