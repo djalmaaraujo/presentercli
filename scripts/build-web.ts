@@ -1,8 +1,8 @@
 #!/usr/bin/env npx ts-node
-import * as fs from 'fs';
-import * as path from 'path';
-import figlet from 'figlet';
-import { marked, Tokens } from 'marked';
+import * as fs from "fs";
+import * as path from "path";
+import figlet from "figlet";
+import { marked, Tokens } from "marked";
 
 interface SlideData {
   id: string;
@@ -21,8 +21,18 @@ interface Theme {
     code: string;
   };
   styles: {
-    h1: { color: string; bold: boolean; marginTop: number; marginBottom: number };
-    h2: { color: string; bold: boolean; marginTop: number; marginBottom: number };
+    h1: {
+      color: string;
+      bold: boolean;
+      marginTop: number;
+      marginBottom: number;
+    };
+    h2: {
+      color: string;
+      bold: boolean;
+      marginTop: number;
+      marginBottom: number;
+    };
     code: { color: string; backgroundColor: string; padding: number };
     list: { color: string; bullet: string; indent: number };
   };
@@ -32,23 +42,23 @@ interface Theme {
 function loadTheme(themePath: string): Theme {
   const defaultTheme: Theme = {
     colors: {
-      primary: '#00ff00',
-      secondary: '#00aaff',
-      text: '#ffffff',
-      dim: '#888888',
-      code: '#00ff88'
+      primary: "#00ff00",
+      secondary: "#00aaff",
+      text: "#ffffff",
+      dim: "#888888",
+      code: "#00ff88",
     },
     styles: {
-      h1: { color: 'primary', bold: true, marginTop: 2, marginBottom: 1 },
-      h2: { color: 'secondary', bold: true, marginTop: 1, marginBottom: 1 },
-      code: { color: 'code', backgroundColor: '#1a1a1a', padding: 1 },
-      list: { color: 'text', bullet: '•', indent: 2 }
+      h1: { color: "primary", bold: true, marginTop: 2, marginBottom: 1 },
+      h2: { color: "secondary", bold: true, marginTop: 1, marginBottom: 1 },
+      code: { color: "code", backgroundColor: "#1a1a1a", padding: 1 },
+      list: { color: "text", bullet: "•", indent: 2 },
     },
-    layout: { maxWidth: 80, padding: 2, centerContent: false }
+    layout: { maxWidth: 80, padding: 2, centerContent: false },
   };
 
   if (fs.existsSync(themePath)) {
-    const themeContent = fs.readFileSync(themePath, 'utf-8');
+    const themeContent = fs.readFileSync(themePath, "utf-8");
     return { ...defaultTheme, ...JSON.parse(themeContent) };
   }
   return defaultTheme;
@@ -60,16 +70,16 @@ interface AsciiArtResult {
 }
 
 // Figlet fonts in order of preference (largest to smallest)
-type FigletFont = 'Big' | 'Standard' | 'Small';
-const FIGLET_FONTS: FigletFont[] = ['Big', 'Standard', 'Small'];
+type FigletFont = "Big" | "Standard" | "Small";
+const FIGLET_FONTS: FigletFont[] = ["Big", "Standard", "Small"];
 const MAX_ASCII_WIDTH = 80;
 
 function generateAsciiArt(text: string): AsciiArtResult | null {
   try {
     // Clean text - remove emojis and markdown syntax
     let cleanText = text
-      .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
-      .replace(/[*_`]/g, '')
+      .replace(/[\u{1F300}-\u{1F9FF}]/gu, "")
+      .replace(/[*_`]/g, "")
       .trim();
 
     if (cleanText.length > 30) {
@@ -80,12 +90,12 @@ function generateAsciiArt(text: string): AsciiArtResult | null {
     for (const font of FIGLET_FONTS) {
       const art = figlet.textSync(cleanText, {
         font,
-        horizontalLayout: 'default',
-        verticalLayout: 'default'
+        horizontalLayout: "default",
+        verticalLayout: "default",
       });
 
-      const lines = art.split('\n');
-      const maxWidth = Math.max(...lines.map(line => line.length));
+      const lines = art.split("\n");
+      const maxWidth = Math.max(...lines.map((line) => line.length));
 
       // Skip if too tall
       if (lines.length > 10) {
@@ -100,17 +110,17 @@ function generateAsciiArt(text: string): AsciiArtResult | null {
 
     // If no font fits, use the smallest font and let CSS scale it
     const art = figlet.textSync(cleanText, {
-      font: 'Small',
-      horizontalLayout: 'default',
-      verticalLayout: 'default'
+      font: "Small",
+      horizontalLayout: "default",
+      verticalLayout: "default",
     });
 
-    const lines = art.split('\n');
+    const lines = art.split("\n");
     if (lines.length > 10) {
       return null;
     }
 
-    const maxWidth = Math.max(...lines.map(line => line.length));
+    const maxWidth = Math.max(...lines.map((line) => line.length));
     return { art, maxWidth };
   } catch {
     return null;
@@ -119,25 +129,29 @@ function generateAsciiArt(text: string): AsciiArtResult | null {
 
 function extractTitle(markdown: string): string {
   const match = markdown.match(/^#\s+(.+)$/m);
-  return match ? match[1].replace(/[*_`]/g, '').trim() : 'Untitled';
+  return match ? match[1].replace(/[*_`]/g, "").trim() : "Untitled";
 }
 
 function stripSpeakerNotes(content: string): string {
-  return content.replace(/<!--\s*SPEAKER\s+NOTES[\s\S]*?-->/gi, '').trim();
+  return content.replace(/<!--\s*SPEAKER\s+NOTES[\s\S]*?-->/gi, "").trim();
 }
 
-function renderMarkdownToHtml(markdown: string, theme: Theme, isFirstHeading: boolean = true): { html: string; asciiArt?: string; asciiArtWidth?: number } {
+function renderMarkdownToHtml(
+  markdown: string,
+  theme: Theme,
+  isFirstHeading: boolean = true
+): { html: string; asciiArt?: string; asciiArtWidth?: number } {
   const tokens = marked.lexer(markdown);
-  let html = '';
+  let html = "";
   let asciiArt: string | undefined;
   let asciiArtWidth: number | undefined;
   let firstH1Found = false;
 
   for (const token of tokens) {
     switch (token.type) {
-      case 'heading': {
+      case "heading": {
         const headingToken = token as Tokens.Heading;
-        const colorKey = headingToken.depth === 1 ? 'primary' : 'secondary';
+        const colorKey = headingToken.depth === 1 ? "primary" : "secondary";
         const color = theme.colors[colorKey];
 
         if (headingToken.depth === 1 && isFirstHeading && !firstH1Found) {
@@ -151,37 +165,57 @@ function renderMarkdownToHtml(markdown: string, theme: Theme, isFirstHeading: bo
           }
         }
 
-        const boldStyle = headingToken.depth <= 2 ? 'font-weight: bold;' : '';
-        html += `<h${headingToken.depth} style="color: ${color}; ${boldStyle}">${parseInlineMarkdown(headingToken.text, theme)}</h${headingToken.depth}>\n`;
+        const boldStyle = headingToken.depth <= 2 ? "font-weight: bold;" : "";
+        html += `<h${
+          headingToken.depth
+        } style="color: ${color}; ${boldStyle}">${parseInlineMarkdown(
+          headingToken.text,
+          theme
+        )}</h${headingToken.depth}>\n`;
         break;
       }
-      case 'paragraph': {
+      case "paragraph": {
         const paragraphToken = token as Tokens.Paragraph;
-        html += `<p style="color: ${theme.colors.text};">${parseInlineMarkdown(paragraphToken.text, theme)}</p>\n`;
+        html += `<p style="color: ${theme.colors.text};">${parseInlineMarkdown(
+          paragraphToken.text,
+          theme
+        )}</p>\n`;
         break;
       }
-      case 'list': {
+      case "list": {
         const listToken = token as Tokens.List;
         const bullet = theme.styles.list.bullet;
         html += '<ul class="terminal-list">\n';
         for (const item of listToken.items) {
-          html += `<li><span class="bullet">${bullet}</span> ${parseInlineMarkdown(item.text, theme)}</li>\n`;
+          html += `<li><span class="bullet">${bullet}</span> ${parseInlineMarkdown(
+            item.text,
+            theme
+          )}</li>\n`;
         }
-        html += '</ul>\n';
+        html += "</ul>\n";
         break;
       }
-      case 'code': {
+      case "code": {
         const codeToken = token as Tokens.Code;
-        html += `<pre class="code-block"><code>${escapeHtml(codeToken.text)}</code></pre>\n`;
+        html += `<pre class="code-block"><code>${escapeHtml(
+          codeToken.text
+        )}</code></pre>\n`;
         break;
       }
-      case 'hr': {
+      case "hr": {
         html += `<hr style="border-color: ${theme.colors.dim}; border-style: dashed;" />\n`;
         break;
       }
-      case 'blockquote': {
+      case "blockquote": {
         const blockquoteToken = token as Tokens.Blockquote;
-        html += `<blockquote style="color: ${theme.colors.dim}; border-left: 2px solid ${theme.colors.dim}; padding-left: 1em;">${parseInlineMarkdown(blockquoteToken.text, theme)}</blockquote>\n`;
+        html += `<blockquote style="color: ${
+          theme.colors.dim
+        }; border-left: 2px solid ${
+          theme.colors.dim
+        }; padding-left: 1em;">${parseInlineMarkdown(
+          blockquoteToken.text,
+          theme
+        )}</blockquote>\n`;
         break;
       }
     }
@@ -192,12 +226,12 @@ function renderMarkdownToHtml(markdown: string, theme: Theme, isFirstHeading: bo
 
 function parseInlineMarkdown(text: string, theme: Theme): string {
   // Bold
-  text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  text = text.replace(/__(.+?)__/g, '<strong>$1</strong>');
+  text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  text = text.replace(/__(.+?)__/g, "<strong>$1</strong>");
 
   // Italic
-  text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  text = text.replace(/_(.+?)_/g, '<em>$1</em>');
+  text = text.replace(/\*(.+?)\*/g, "<em>$1</em>");
+  text = text.replace(/_(.+?)_/g, "<em>$1</em>");
 
   // Inline code
   text = text.replace(/`(.+?)`/g, `<code class="inline-code">$1</code>`);
@@ -207,42 +241,52 @@ function parseInlineMarkdown(text: string, theme: Theme): string {
 
 function escapeHtml(text: string): string {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function loadSlides(slidesDir: string, theme: Theme): SlideData[] {
-  const files = fs.readdirSync(slidesDir)
-    .filter(f => f.endsWith('.md'))
+  const files = fs
+    .readdirSync(slidesDir)
+    .filter((f) => f.endsWith(".md"))
     .sort();
 
-  return files.map(file => {
+  return files.map((file) => {
     const filePath = path.join(slidesDir, file);
-    const content = fs.readFileSync(filePath, 'utf-8');
+    const content = fs.readFileSync(filePath, "utf-8");
     const cleanContent = stripSpeakerNotes(content);
     const title = extractTitle(cleanContent);
-    const { html, asciiArt, asciiArtWidth } = renderMarkdownToHtml(cleanContent, theme);
+    const { html, asciiArt, asciiArtWidth } = renderMarkdownToHtml(
+      cleanContent,
+      theme
+    );
 
     return {
       id: file,
       title,
       htmlContent: html,
       asciiArt,
-      asciiArtWidth
+      asciiArtWidth,
     };
   });
 }
 
-function generateHtml(slides: SlideData[], theme: Theme, presentationTitle: string): string {
-  const slidesJson = JSON.stringify(slides.map(s => ({
-    title: s.title,
-    content: s.htmlContent,
-    asciiArt: s.asciiArt,
-    asciiArtWidth: s.asciiArtWidth
-  })));
+function generateHtml(
+  slides: SlideData[],
+  theme: Theme,
+  presentationTitle: string
+): string {
+  const slidesJson = JSON.stringify(
+    slides.map((s) => ({
+      title: s.title,
+      content: s.htmlContent,
+      asciiArt: s.asciiArt,
+      asciiArtWidth: s.asciiArtWidth,
+    }))
+  );
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -302,7 +346,6 @@ function generateHtml(slides: SlideData[], theme: Theme, presentationTitle: stri
       justify-content: center;
       align-items: center;
       margin-bottom: 1.5rem;
-      overflow: hidden;
     }
 
     .ascii-art {
@@ -532,7 +575,7 @@ function generateHtml(slides: SlideData[], theme: Theme, presentationTitle: stri
         <div class="progress-fill" id="progressFill"></div>
       </div>
     </div>
-    <div>Press <span style="color: ${theme.colors.primary};">h</span> for help | <span style="color: ${theme.colors.primary};">q</span> to close</div>
+    <div>Press <span style="color: ${theme.colors.primary};">h</span> for help</div>
   </div>
 
   <div class="help-overlay" id="helpOverlay">
@@ -544,9 +587,13 @@ function generateHtml(slides: SlideData[], theme: Theme, presentationTitle: stri
         <li><span class="key">g</span> First slide</li>
         <li><span class="key">G</span> Last slide</li>
         <li><span class="key">1-9</span> Jump to slide</li>
+        <li><span class="key">f</span> Toggle fullscreen</li>
         <li><span class="key">h</span> / <span class="key">?</span> Toggle help</li>
-        <li><span class="key">Esc</span> Close help</li>
+        <li><span class="key">Esc</span> Close help / Exit fullscreen</li>
       </ul>
+      <p style="margin-top: 1.5rem; font-size: 0.8rem; color: ${theme.colors.dim};">
+        Made with <a href="https://github.com/nb/presentercli" target="_blank" rel="noopener" style="color: ${theme.colors.secondary};">presentercli</a>
+      </p>
     </div>
   </div>
 
@@ -623,6 +670,16 @@ function generateHtml(slides: SlideData[], theme: Theme, presentationTitle: stri
       document.getElementById('helpOverlay').classList.toggle('active');
     }
 
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log('Fullscreen not available:', err);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
     document.addEventListener('keydown', (e) => {
       const helpOverlay = document.getElementById('helpOverlay');
       const helpActive = helpOverlay.classList.contains('active');
@@ -652,14 +709,12 @@ function generateHtml(slides: SlideData[], theme: Theme, presentationTitle: stri
         case 'G':
           goToSlide(slides.length - 1);
           break;
+        case 'f':
+          toggleFullscreen();
+          break;
         case 'h':
         case '?':
           toggleHelp();
-          break;
-        case 'Escape':
-        case 'q':
-          // In a web context, we can't really "quit"
-          // but we could redirect or show a message
           break;
         default:
           // Number keys for direct slide access
@@ -700,14 +755,20 @@ async function main() {
   const args = process.argv.slice(2);
 
   if (args.length < 1) {
-    console.error('Usage: npx ts-node scripts/build-web.ts <slides-directory> [output-file]');
-    console.error('Example: npx ts-node scripts/build-web.ts ./brushing-teeth ./dist/presentation.html');
+    console.error(
+      "Usage: npx ts-node scripts/build-web.ts <slides-directory> [output-file]"
+    );
+    console.error(
+      "Example: npx ts-node scripts/build-web.ts ./brushing-teeth ./dist/presentation.html"
+    );
     process.exit(1);
   }
 
   const slidesDir = path.resolve(args[0]);
-  const outputFile = args[1] ? path.resolve(args[1]) : path.join(slidesDir, 'index.html');
-  const themeFile = path.join(process.cwd(), 'theme.json');
+  const outputFile = args[1]
+    ? path.resolve(args[1])
+    : path.join(slidesDir, "index.html");
+  const themeFile = path.join(process.cwd(), "theme.json");
 
   if (!fs.existsSync(slidesDir)) {
     console.error(`Error: Slides directory not found: ${slidesDir}`);
@@ -720,7 +781,7 @@ async function main() {
   const slides = loadSlides(slidesDir, theme);
 
   if (slides.length === 0) {
-    console.error('Error: No markdown files found in slides directory');
+    console.error("Error: No markdown files found in slides directory");
     process.exit(1);
   }
 
@@ -742,8 +803,8 @@ async function main() {
 
 // Only run main when executed directly (not when imported for testing)
 if (require.main === module) {
-  main().catch(err => {
-    console.error('Error:', err);
+  main().catch((err) => {
+    console.error("Error:", err);
     process.exit(1);
   });
 }
@@ -763,5 +824,5 @@ export {
   Theme,
   AsciiArtResult,
   MAX_ASCII_WIDTH,
-  FIGLET_FONTS
+  FIGLET_FONTS,
 };

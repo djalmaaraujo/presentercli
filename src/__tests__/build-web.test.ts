@@ -547,5 +547,30 @@ describe('build-web utilities', () => {
       const html = generateHtml(sampleSlides, defaultTheme, 'Test');
       expect(html).toContain('JetBrains+Mono');
     });
+
+    test('should include fullscreen toggle function', () => {
+      const html = generateHtml(sampleSlides, defaultTheme, 'Test');
+      expect(html).toContain('function toggleFullscreen');
+      expect(html).toContain('requestFullscreen');
+      expect(html).toContain('exitFullscreen');
+    });
+
+    test('should include fullscreen shortcut in help dialog', () => {
+      const html = generateHtml(sampleSlides, defaultTheme, 'Test');
+      expect(html).toContain('Toggle fullscreen');
+      expect(html).toContain('>f</span>');
+    });
+
+    test('should include GitHub repository link in help dialog', () => {
+      const html = generateHtml(sampleSlides, defaultTheme, 'Test');
+      expect(html).toContain('https://github.com/nb/presentercli');
+      expect(html).toContain('presentercli</a>');
+    });
+
+    test('should not include quit option in footer', () => {
+      const html = generateHtml(sampleSlides, defaultTheme, 'Test');
+      expect(html).not.toContain('q</span> to close');
+      expect(html).not.toContain('q to quit');
+    });
   });
 });
