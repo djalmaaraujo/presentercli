@@ -746,6 +746,7 @@ function generateHtml(
 
     // Initialize
     renderSlides();
+    updateSlide();
   </script>
 </body>
 </html>`;
