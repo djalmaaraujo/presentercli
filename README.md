@@ -63,30 +63,56 @@ npm run build:web ./brushing-teeth ./dist/demo.html  # Custom output path
 
 The generated HTML file is self-contained with:
 - Terminal-style design with CRT effects
-- Keyboard navigation (same shortcuts as CLI)
+- Keyboard navigation
 - Touch/swipe support for mobile
 - Progress bar and slide counter
+- Fullscreen mode
+- Smart ASCII art scaling (automatically adjusts font size for long titles)
+
+### Web Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `→` / `n` / `Space` | Next slide |
+| `←` / `p` | Previous slide |
+| `g` | First slide |
+| `G` | Last slide |
+| `1-9` | Jump to slide |
+| `f` | Toggle fullscreen |
+| `h` / `?` | Toggle help |
+| `Esc` | Close help / Exit fullscreen |
 
 ### Deploy to GitHub Pages
 
 Deploy directly to GitHub Pages with a single command:
 
 ```bash
-npm run deploy:web <slides-directory> <target-folder-name>
+npm run deploy:web <slides-directory> <target-folder-name> [--repo user/repo]
 
-# Example:
+# Examples:
 npm run deploy:web ./brushing-teeth my-presentation
+npm run deploy:web ./brushing-teeth demo -- --repo myorg/presentations
 ```
 
-This will:
-1. Build the web presentation
-2. Create a `static` repository on your GitHub (if it doesn't exist)
-3. Deploy to `https://<username>.github.io/static/<target-folder>/`
+**Arguments:**
+- `<slides-directory>` - Path to the folder containing your markdown slides
+- `<target-folder-name>` - Name of the folder in the target repository
+
+**Options:**
+- `--repo user/repo` - Deploy to a specific GitHub repository (default: `<your-username>/static`)
+
+**Default behavior:**
+1. Builds the web presentation
+2. Creates a `static` repository on your GitHub (if it doesn't exist)
+3. Deploys to `https://<username>.github.io/static/<target-folder>/`
+
+**Custom repository:**
+When using `--repo`, the repository must already exist. This is useful for deploying to organization repos or custom hosting repositories.
 
 **Requirements:** GitHub CLI (`gh`) must be installed and authenticated (`gh auth login`).
 
 **First-time setup:** After deployment, enable GitHub Pages in your repository settings:
-1. Go to `https://github.com/<username>/static/settings/pages`
+1. Go to `https://github.com/<username>/<repo>/settings/pages`
 2. Set Source to "Deploy from a branch"
 3. Select "main" branch and "/ (root)" folder
 
