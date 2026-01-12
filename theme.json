@@ -1,0 +1,38 @@
+{
+  "colors": {
+    "primary": "#00ff00",
+    "secondary": "#00aaff",
+    "text": "#ffffff",
+    "dim": "#888888",
+    "code": "#00ff88"
+  },
+  "styles": {
+    "h1": {
+      "color": "primary",
+      "bold": true,
+      "marginTop": 2,
+      "marginBottom": 1
+    },
+    "h2": {
+      "color": "secondary",
+      "bold": true,
+      "marginTop": 1,
+      "marginBottom": 1
+    },
+    "code": {
+      "color": "code",
+      "backgroundColor": "#1a1a1a",
+      "padding": 1
+    },
+    "list": {
+      "color": "text",
+      "bullet": "•",
+      "indent": 2
+    }
+  },
+  "layout": {
+    "maxWidth": 80,
+    "padding": 2,
+    "centerContent": false
+  }
+}

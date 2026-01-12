@@ -1,0 +1,47 @@
+{
+  "name": "presentercli",
+  "version": "0.0.1",
+  "description": "CLI presentation tool",
+  "main": "dist/index.js",
+  "bin": {
+    "presentercli": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js brushing-teeth",
+    "present": "npm run build && npm start",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "cli",
+    "presentation",
+    "markdown"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@types/figlet": "^1.7.0",
+    "ansi-escapes": "^6.2.0",
+    "chalk": "^4.1.2",
+    "chokidar": "^3.5.3",
+    "commander": "^11.1.0",
+    "figlet": "^1.9.4",
+    "marked": "^12.0.0",
+    "string-width": "^6.1.0",
+    "strip-ansi": "^7.1.0",
+    "wrap-ansi": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.11.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

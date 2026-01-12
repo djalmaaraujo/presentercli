@@ -1,0 +1,27 @@
+=== Debug Presenter Log ===
+Started: 2026-01-11T18:23:45.123Z
+
+[2026-01-11T18:23:45.125Z] [INFO] Starting presentation | {"slidesDir":"/Users/presenter/brushing-teeth","presentationMode":true}
+[2026-01-11T18:23:45.234Z] [INFO] Navigation: next | {"currentIndex":0,"totalSlides":8}
+[2026-01-11T18:23:45.235Z] [DEBUG] Rendering slide | {"slideId":"01-title.md","slideNumber":"Slide 2 of 8"}
+[2026-01-11T18:23:47.891Z] [INFO] Navigation: next | {"currentIndex":1,"totalSlides":8}
+[2026-01-11T18:23:47.892Z] [DEBUG] Rendering slide | {"slideId":"02-the-problem.md","slideNumber":"Slide 3 of 8"}
+[2026-01-11T18:23:52.456Z] [INFO] Navigation: next | {"currentIndex":2,"totalSlides":8}
+[2026-01-11T18:23:52.457Z] [DEBUG] Rendering slide | {"slideId":"03-ai-solution.md","slideNumber":"Slide 4 of 8"}
+[2026-01-11T18:23:58.123Z] [INFO] Navigation: next | {"currentIndex":3,"totalSlides":8}
+[2026-01-11T18:23:58.124Z] [DEBUG] Rendering slide | {"slideId":"04-privacy.md","slideNumber":"Slide 5 of 8"}
+[2026-01-11T18:24:03.567Z] [INFO] Navigation: next | {"currentIndex":4,"totalSlides":8}
+[2026-01-11T18:24:03.568Z] [DEBUG] Rendering slide | {"slideId":"05-future.md","slideNumber":"Slide 6 of 8"}
+[2026-01-11T18:24:08.234Z] [INFO] Navigation: next | {"currentIndex":5,"totalSlides":8}
+[2026-01-11T18:24:08.235Z] [DEBUG] Rendering slide | {"slideId":"06-debugging.md","slideNumber":"Slide 7 of 8"}
+[2026-01-11T18:24:12.890Z] [INFO] Navigation: next | {"currentIndex":6,"totalSlides":8}
+[2026-01-11T18:24:12.891Z] [DEBUG] Rendering slide | {"slideId":"07-faq.md","slideNumber":"Slide 8 of 8"}
+[2026-01-11T18:24:16.445Z] [INFO] Navigation: next | {"currentIndex":7,"totalSlides":8}
+[2026-01-11T18:24:16.446Z] [DEBUG] Rendering slide | {"slideId":"08-conclusion.md","slideNumber":"Slide 9 of 8"}
+[2026-01-11T18:24:16.447Z] [WARN] Navigation attempted beyond bounds | {"currentIndex":7,"totalSlides":8}
+[2026-01-11T18:24:18.223Z] [INFO] Navigation: next | {"currentIndex":8,"totalSlides":8}
+[2026-01-11T18:24:18.224Z] [WARN] Navigation attempted beyond bounds | {"currentIndex":8,"totalSlides":8}
+[2026-01-11T18:24:18.225Z] [ERROR] Attempted to get slide at invalid index | {"currentIndex":8,"totalSlides":8}
+[2026-01-11T18:24:18.226Z] [ERROR] Cannot render: slide is undefined | {"currentIndex":8,"totalSlides":8}
+[2026-01-11T18:24:18.227Z] [ERROR] Error rendering slide | {"error":"Cannot read properties of undefined (reading 'content')","currentIndex":8}
+[2026-01-11T18:24:18.228Z] [ERROR] Application error | {"message":"Cannot read properties of undefined (reading 'content')","stack":"Error: Cannot read properties of undefined (reading 'content')\n    at Presenter.render (/Users/presenter/debug-ai/dist/presenter.js:287:23)\n    at Presenter.handleNext (/Users/presenter/debug-ai/dist/presenter.js:156:18)"}
