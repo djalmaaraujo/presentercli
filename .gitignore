@@ -6,6 +6,11 @@ dist/
 
 # TypeScript
 *.tsbuildinfo
+*.d.ts
+*.d.ts.map
+*.js.map
+# Compiled output from .ts files in scripts/
+scripts/*.js
 
 # Editor
 .vscode/

@@ -1,132 +1,201 @@
-# CLI Markdown Presenter
+# PresentCLI
 
-Presentations from the command line, just point at a directory of markdown files and go.
+Terminal-based markdown presentations with web export. Present directly from your terminal or generate self-contained HTML presentations for sharing.
 
-## Setup
+## Features
 
-1. **Clone and install**
-   ```bash
-   git clone <repository-url>
-   cd presentercli
-   npm install
-   ```
+### 🎯 Core
+- **Markdown-based** - Write slides in simple markdown files
+- **ASCII Art Titles** - Auto-generated figlet headers with smart scaling
+- **Live Reload** - Watch mode for real-time slide updates
+- **Custom Themes** - JSON-based color and style configuration
+- **Navigation History** - Undo/redo through slides with `u` key
 
-2. **Build the project**
-   ```bash
-   npm run build
-   ```
+### 🌐 Web Export
+- **Self-contained HTML** - Single file with embedded styles and scripts
+- **Terminal Aesthetics** - CRT effects, scanlines, and monospace fonts
+- **Image Support** - Markdown images automatically converted to responsive `<img>` tags
+- **Mobile-friendly** - Touch/swipe navigation
+- **GitHub Pages Deploy** - One-command deployment with asset upload
 
-3. **Start the presentation**
-   ```bash
-   node dist/index.js <slides-directory>
+### 🎨 Presentation Modes
+- **Presentation Mode** (default) - Large ASCII art headers with full styling
+- **Plain Mode** (`-p`) - Compact text for detailed content
 
-   # Example with sample deck:
-   node dist/index.js ./brushing-teeth
-   ```
+## Quick Start
 
-You should see the presentation start in your terminal.
+```bash
+# Install
+npm install
 
-**Note:** Large text mode is the default for presenting. Use `-p` for compact plain text mode.
+# Build
+npm run build
 
-## Using
+# Present
+node dist/index.js <slides-directory>
+
+# Example with sample deck
+node dist/index.js ./brushing-teeth
+```
+
+## CLI Usage
+
+```bash
+node dist/index.js <slides-dir> [options]
+
+Options:
+  -t, --theme <file>     Path to theme.json (default: "theme.json")
+  -w, --watch            Enable live reload
+  -s, --slide <number>   Start at specific slide (1-based)
+  -p, --plain            Plain mode (compact text, no ASCII art)
+  -h, --help             Display help
+```
 
 ### Keyboard Shortcuts
 
-**Navigation:**
-- `n`, `→`, `Space` - Next slide
-- `p`, `←` - Previous slide
-- `j` - Jump to slide number
-- `g` - First slide
-- `G` - Last slide
-- `u` - Undo (go back in navigation history)
-
-**Display:**
-- `r` - Refresh current slide
-
-**Control:**
-- `h`, `?` - Show help
-- `q`, `Esc` - Quit
+| Key                 | Action                  |
+| ------------------- | ----------------------- |
+| `n` / `→` / `Space` | Next slide              |
+| `p` / `←`           | Previous slide          |
+| `j`                 | Jump to slide number    |
+| `g`                 | First slide             |
+| `G`                 | Last slide              |
+| `u`                 | Undo (navigation stack) |
+| `r`                 | Refresh current slide   |
+| `h` / `?`           | Show help               |
+| `q` / `Esc`         | Quit                    |
 
 ## Web Export
 
-Export your presentation as a standalone HTML file for sharing or hosting.
-
-### Build Web Presentation
+### Build HTML
 
 ```bash
 npm run build:web <slides-directory> [output-file]
 
 # Examples:
-npm run build:web ./brushing-teeth                    # Creates ./brushing-teeth/index.html
-npm run build:web ./brushing-teeth ./dist/demo.html  # Custom output path
+npm run build:web ./my-slides                    # Creates ./my-slides/index.html
+npm run build:web ./my-slides ./dist/demo.html  # Custom output path
 ```
 
-The generated HTML file is self-contained with:
-- Terminal-style design with CRT effects
-- Keyboard navigation
+**Generated HTML includes:**
+- Terminal-style design with CRT effects and scanlines
+- Keyboard navigation (`→`, `←`, `g`, `G`, `1-9`, `f`, `h`)
 - Touch/swipe support for mobile
 - Progress bar and slide counter
-- Fullscreen mode
-- Smart ASCII art scaling (automatically adjusts font size for long titles)
-
-### Web Keyboard Shortcuts
-
-| Key | Action |
-|-----|--------|
-| `→` / `n` / `Space` | Next slide |
-| `←` / `p` | Previous slide |
-| `g` | First slide |
-| `G` | Last slide |
-| `1-9` | Jump to slide |
-| `f` | Toggle fullscreen |
-| `h` / `?` | Toggle help |
-| `Esc` | Close help / Exit fullscreen |
+- Fullscreen mode (`f` key)
+- Responsive images from markdown
 
 ### Deploy to GitHub Pages
 
-Deploy directly to GitHub Pages with a single command:
-
 ```bash
-npm run deploy:web <slides-directory> <target-folder-name> [--repo user/repo]
+npm run deploy:web <slides-directory> <target-folder> [--repo user/repo]
 
 # Examples:
-npm run deploy:web ./brushing-teeth my-presentation
-npm run deploy:web ./brushing-teeth demo -- --repo myorg/presentations
+npm run deploy:web ./my-slides demo-presentation
+npm run deploy:web ./my-slides demo -- --repo myorg/presentations
 ```
 
-**Arguments:**
-- `<slides-directory>` - Path to the folder containing your markdown slides
-- `<target-folder-name>` - Name of the folder in the target repository
+**Features:**
+- Auto-creates GitHub repository if needed (default: `<username>/static`)
+- Uploads HTML + all images (PNG, JPG, GIF, SVG)
+- Deploys to `https://<username>.github.io/<repo>/<target-folder>/`
 
-**Options:**
-- `--repo user/repo` - Deploy to a specific GitHub repository (default: `<your-username>/static`)
+**Requirements:** GitHub CLI (`gh`) installed and authenticated (`gh auth login`)
 
-**Default behavior:**
-1. Builds the web presentation
-2. Creates a `static` repository on your GitHub (if it doesn't exist)
-3. Deploys to `https://<username>.github.io/static/<target-folder>/`
-
-**Custom repository:**
-When using `--repo`, the repository must already exist. This is useful for deploying to organization repos or custom hosting repositories.
-
-**Requirements:** GitHub CLI (`gh`) must be installed and authenticated (`gh auth login`).
-
-**First-time setup:** After deployment, enable GitHub Pages in your repository settings:
+**First-time setup:** Enable GitHub Pages in repo settings after first deploy:
 1. Go to `https://github.com/<username>/<repo>/settings/pages`
 2. Set Source to "Deploy from a branch"
 3. Select "main" branch and "/ (root)" folder
 
+## Creating Slides
+
+Create a directory with numbered markdown files:
+
+```
+my-slides/
+├── 01-intro.md
+├── 02-features.md
+├── 03-demo.md
+└── 04-conclusion.md
+```
+
+**Markdown features:**
+- Headings (`#`, `##`, `###`)
+- Lists (bullet and numbered)
+- Code blocks with syntax highlighting
+- Bold (`**text**`) and italic (`*text*`)
+- Inline code (`` `code` ``)
+- Images (`![alt](./image.png)`) - works in web export
+- Horizontal rules (`---`)
+- Blockquotes (`>`)
+
+**Title slides:** First `#` heading becomes ASCII art (auto-sized to fit)
+
+## Theming
+
+Create a `theme.json` file (auto-generated on first run):
+
+```json
+{
+  "colors": {
+    "primary": "#00ff00",
+    "secondary": "#00aaff",
+    "text": "#ffffff",
+    "dim": "#888888",
+    "code": "#00ff88"
+  },
+  "styles": {
+    "h1": { "color": "primary", "bold": true },
+    "h2": { "color": "secondary", "bold": true },
+    "code": { "color": "code", "backgroundColor": "#1a1a1a" },
+    "list": { "bullet": "•", "indent": 2 }
+  },
+  "layout": {
+    "maxWidth": 80,
+    "padding": 2,
+    "centerContent": false
+  }
+}
+```
+
+## Development
+
+```bash
+# Watch mode for development
+npm run dev
+
+# Run tests
+npm test
+npm run test:watch
+npm run test:coverage
+
+# Build
+npm run build
+```
+
+## Dependencies
+
+- **[marked](https://marked.js.org/)** - Markdown parser
+- **[figlet](https://github.com/patorjk/figlet.js)** - ASCII art generator
+- **[chalk](https://github.com/chalk/chalk)** - Terminal styling
+- **[chokidar](https://github.com/paulmillr/chokidar)** - File watcher
+- **[commander](https://github.com/tj/commander.js)** - CLI framework
+
 ## Troubleshooting
 
-**"Module not found" errors:**
+**Module not found:**
 ```bash
 rm -rf node_modules package-lock.json
 npm install
 npm run build
 ```
 
-**Terminal too small:**
-Increase your terminal width to at least 80 columns.
+**Terminal too small:** Increase width to at least 80 columns
 
-**Colors not showing:**
-Make sure you're using a modern terminal (iTerm2, Terminal.app, Windows Terminal, etc.).
+**Colors not showing:** Use a modern terminal (iTerm2, Terminal.app, Windows Terminal, etc.)
+
+**Images not showing in web export:** Ensure images are in the slides directory and deployment script will upload them automatically
+
+## License
+
+MIT

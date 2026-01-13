@@ -112,6 +112,19 @@ gh repo clone "$FULL_REPO" "$REPO_DIR" -- --depth 1 2>/dev/null || {
 mkdir -p "$REPO_DIR/$TARGET_FOLDER"
 cp "$OUTPUT_FILE" "$REPO_DIR/$TARGET_FOLDER/"
 
+# Copy all images and assets from the slides directory
+echo "Copying assets from slides directory..."
+if [ -d "$SLIDES_DIR" ]; then
+  # Copy image files (png, jpg, jpeg, gif, svg)
+  find "$SLIDES_DIR" -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.svg" \) -exec cp {} "$REPO_DIR/$TARGET_FOLDER/" \;
+
+  # Count copied files
+  IMAGE_COUNT=$(find "$SLIDES_DIR" -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.gif" -o -name "*.svg" \) | wc -l | tr -d ' ')
+  if [ "$IMAGE_COUNT" -gt 0 ]; then
+    echo "  Copied $IMAGE_COUNT image file(s)"
+  fi
+fi
+
 # Commit and push
 cd "$REPO_DIR"
 git add .

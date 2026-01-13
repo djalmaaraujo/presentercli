@@ -218,6 +218,13 @@ function renderMarkdownToHtml(
         )}</blockquote>\n`;
         break;
       }
+      case "image": {
+        const imageToken = token as Tokens.Image;
+        html += `<img src="${escapeHtml(imageToken.href)}" alt="${escapeHtml(
+          imageToken.text || ""
+        )}" style="max-width: 100%; height: auto; margin: 1rem 0;" />\n`;
+        break;
+      }
     }
   }
 
@@ -225,6 +232,11 @@ function renderMarkdownToHtml(
 }
 
 function parseInlineMarkdown(text: string, theme: Theme): string {
+  // Images (must come before other replacements)
+  text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+    return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" style="max-width: 100%; height: auto; margin: 1rem 0;" />`;
+  });
+
   // Bold
   text = text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   text = text.replace(/__(.+?)__/g, "<strong>$1</strong>");
@@ -320,7 +332,7 @@ function generateHtml(
       justify-content: center;
       align-items: center;
       padding: 2rem;
-      max-width: 80ch;
+      max-width: 100ch;
       margin: 0 auto;
       width: 100%;
     }
@@ -368,6 +380,18 @@ function generateHtml(
     @media (min-width: 1024px) {
       .ascii-art {
         font-size: 1rem;
+      }
+    }
+
+    @media (min-width: 1280px) and (max-width: 1439px) {
+      .container {
+        zoom: 1.2;
+      }
+    }
+
+    @media (min-width: 1440px) {
+      .container {
+        zoom: 1.5;
       }
     }
 
