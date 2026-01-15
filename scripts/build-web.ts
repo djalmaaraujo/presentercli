@@ -225,6 +225,23 @@ function renderMarkdownToHtml(
         )}" style="max-width: 100%; height: auto; margin: 1rem 0;" />\n`;
         break;
       }
+      case "table": {
+        const tableToken = token as Tokens.Table;
+        html += '<table class="terminal-table">\n<thead>\n<tr>\n';
+        for (const cell of tableToken.header) {
+          html += `<th>${parseInlineMarkdown(cell.text, theme)}</th>\n`;
+        }
+        html += '</tr>\n</thead>\n<tbody>\n';
+        for (const row of tableToken.rows) {
+          html += '<tr>\n';
+          for (const cell of row) {
+            html += `<td>${parseInlineMarkdown(cell.text, theme)}</td>\n`;
+          }
+          html += '</tr>\n';
+        }
+        html += '</tbody>\n</table>\n';
+        break;
+      }
     }
   }
 
@@ -483,6 +500,34 @@ function generateHtml(
       color: ${theme.colors.dim};
       margin-bottom: 1rem;
       font-style: italic;
+    }
+
+    .terminal-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .terminal-table th,
+    .terminal-table td {
+      border: 1px solid ${theme.colors.dim};
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+
+    .terminal-table th {
+      background-color: #1a1a1a;
+      color: ${theme.colors.secondary};
+      font-weight: bold;
+    }
+
+    .terminal-table td {
+      color: ${theme.colors.text};
+    }
+
+    .terminal-table tr:nth-child(even) td {
+      background-color: rgba(255, 255, 255, 0.02);
     }
 
     .footer {
