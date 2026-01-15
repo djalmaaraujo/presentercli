@@ -249,9 +249,14 @@ function renderMarkdownToHtml(
 }
 
 function parseInlineMarkdown(text: string, theme: Theme): string {
-  // Images (must come before other replacements)
+  // Images (must come before links since both use []())
   text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
     return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" style="max-width: 100%; height: auto; margin: 1rem 0;" />`;
+  });
+
+  // Links (must come after images)
+  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
+    return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="terminal-link">${linkText}</a>`;
   });
 
   // Bold
@@ -528,6 +533,16 @@ function generateHtml(
 
     .terminal-table tr:nth-child(even) td {
       background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .terminal-link {
+      color: ${theme.colors.secondary};
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .terminal-link:hover {
+      color: ${theme.colors.primary};
     }
 
     .footer {
